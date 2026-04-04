@@ -18,9 +18,17 @@ class StoredXSSDetector:
         self.visited.add(url)
         self.site_map.add(url)
 
-        async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+
+        async with httpx.AsyncClient(timeout=10, follow_redirects=True, headers=headers) as client:
             try:
                 response = await client.get(url)
+
+                # Ensure only HTML content is parsed
+                content_type = response.headers.get("Content-Type", "").lower()
+                if "text/html" not in content_type:
+                    return
+
                 soup = BeautifulSoup(response.text, "html.parser")
                 for link in soup.find_all("a", href=True):
                     href = link.get("href")

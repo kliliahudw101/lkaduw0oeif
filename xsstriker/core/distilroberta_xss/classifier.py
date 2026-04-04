@@ -44,11 +44,18 @@ class XSSClassifier:
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
 
         # Load Hybrid Model
+        # Note: 'MISSING' or 'UNEXPECTED' warnings are expected when loading
+        # a base pre-trained model into a custom architecture.
+        # They disappear after the first --train or --update-cves call.
         self.model = HybridXSSModel(model_name=model_name)
 
         if local_path and os.path.exists(local_path):
-            state_dict = torch.load(os.path.join(local_path, "pytorch_model.bin"), map_location=self.device)
-            self.model.load_state_dict(state_dict)
+            try:
+                state_dict = torch.load(os.path.join(local_path, "pytorch_model.bin"), map_location=self.device)
+                self.model.load_state_dict(state_dict)
+                print(f"[*] Loaded local model from {local_path}")
+            except Exception as e:
+                print(f"[!] Error loading local model: {e}")
 
         self.model.to(self.device)
         self.model.eval()
