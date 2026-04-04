@@ -1,9 +1,10 @@
 import torch
 import torch.nn as nn
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import AutoTokenizer
 from torch.optim import AdamW
 from torch.utils.data import DataLoader, Dataset
 import os
+from .model import HybridXSSModel
 
 class XSSDataset(Dataset):
     def __init__(self, texts, labels, tokenizer, max_len=512):
@@ -36,17 +37,18 @@ class XSSDataset(Dataset):
         }
 
 class XSSClassifier:
-    """Layer 1: Enhanced Detection Engine (DistilRoBERTa from Scratch)"""
+    """Layer 1: Enhanced Detection Engine (Hybrid AI Architecture)"""
     def __init__(self, model_name="distilroberta-base", local_path=None):
         self.model_name = model_name
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
 
+        # Load Hybrid Model
+        self.model = HybridXSSModel(model_name=model_name)
+
         if local_path and os.path.exists(local_path):
-            self.model = AutoModelForSequenceClassification.from_pretrained(local_path)
-        else:
-            # Initialize with base weights, but intended to be fine-tuned from scratch/large dataset
-            self.model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=2)
+            state_dict = torch.load(os.path.join(local_path, "pytorch_model.bin"), map_location=self.device)
+            self.model.load_state_dict(state_dict)
 
         self.model.to(self.device)
         self.model.eval()
@@ -54,11 +56,11 @@ class XSSClassifier:
     def predict(self, text):
         """Classifies the payload as XSS (1) or Safe (0)."""
         inputs = self.tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
-        inputs = {k: v.to(self.device) for k, v in inputs.items()}
+        input_ids = inputs['input_ids'].to(self.device)
+        attention_mask = inputs['attention_mask'].to(self.device)
 
         with torch.no_grad():
-            outputs = self.model(**inputs)
-            logits = outputs.logits
+            logits = self.model(input_ids, attention_mask=attention_mask)
             probabilities = torch.softmax(logits, dim=1)
 
         confidence, label = torch.max(probabilities, dim=1)
@@ -81,11 +83,12 @@ class XSSClassifier:
             print("[!] No data provided for training. Skipping.")
             return
 
-        print(f"[*] Starting fine-tuning from scratch on {len(train_texts)} samples...")
+        print(f"[*] Starting fine-tuning hybrid model on {len(train_texts)} samples...")
         train_dataset = XSSDataset(train_texts, train_labels, self.tokenizer)
         train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
         optimizer = AdamW(self.model.parameters(), lr=lr)
+        criterion = nn.CrossEntropyLoss()
         self.model.train()
 
         for epoch in range(epochs):
@@ -96,8 +99,8 @@ class XSSClassifier:
                 attention_mask = batch['attention_mask'].to(self.device)
                 labels = batch['labels'].to(self.device)
 
-                outputs = self.model(input_ids, attention_mask=attention_mask, labels=labels)
-                loss = outputs.loss
+                logits = self.model(input_ids, attention_mask=attention_mask)
+                loss = criterion(logits, labels)
                 loss.backward()
                 optimizer.step()
                 total_loss += loss.item()
@@ -108,8 +111,10 @@ class XSSClassifier:
         print("[+] Training complete.")
 
     def save_model(self, path="xstriker_model"):
-        self.model.save_pretrained(path)
+        os.makedirs(path, exist_ok=True)
+        torch.save(self.model.state_dict(), os.path.join(path, "pytorch_model.bin"))
         self.tokenizer.save_pretrained(path)
+        print(f"[+] Model saved to {path}")
 
 if __name__ == "__main__":
     classifier = XSSClassifier()
