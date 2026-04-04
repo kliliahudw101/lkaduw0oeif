@@ -1,16 +1,33 @@
 from playwright.async_api import async_playwright
 import asyncio
+from .js_hooker import JSHooker
 
 class DOMScanner:
     """Layer 3: DOM-based XSS Scanner using Playwright (Chromium)"""
     def __init__(self, headless=True):
         self.headless = headless
+        self.hooker = JSHooker()
 
     async def scan(self, url, parameter, payload):
         """Injects payload and scans the DOM using Playwright DevTools Protocol."""
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=self.headless)
             page = await browser.new_page()
+
+            # Inject JS Hooks for Deep DOM Monitoring
+            await page.add_init_script(self.hooker.get_hook_script())
+
+            # Monitoring sink calls from console logs
+            sink_triggered = False
+            sink_details = {}
+            def on_console(msg):
+                nonlocal sink_triggered, sink_details
+                if "[XStriker-Hook]" in msg.text:
+                    sink_triggered = True
+                    sink_details = msg.text
+                    print(f"[!] Sink Execution: {msg.text}")
+
+            page.on("console", on_console)
 
             # Construct URL with payload
             if "?" in url:
@@ -42,10 +59,10 @@ class DOMScanner:
                     print(f"[*] Payload reflected in DOM content.")
 
                 # Take screenshot on possible trigger
-                if xss_triggered:
+                if xss_triggered or sink_triggered:
                     await page.screenshot(path="reports/dom_xss_trigger.png")
 
-                return xss_triggered
+                return xss_triggered or sink_triggered
 
             except Exception as e:
                 print(f"[!] DOM Scan error: {e}")

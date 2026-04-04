@@ -11,4 +11,5 @@ flask
 playwright
 httpx
 selenium-base
-# crawl4ai (might need special installation if not on pypi)
+jsonschema
+pyyaml
