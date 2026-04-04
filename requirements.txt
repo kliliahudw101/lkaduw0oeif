@@ -1,0 +1,10 @@
+transformers
+torch
+peft
+requests
+beautifulsoup4
+rich
+numpy
+pandas
+pytest
+flask
