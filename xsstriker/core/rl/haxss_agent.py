@@ -57,6 +57,7 @@ class HAXSSAgent:
     def generate_payload(self, context):
         """Select actions using epsilon-greedy policy."""
         state = self._get_state_vector(context)
+        context_type = context.get("type")
 
         # Escape layer action
         if random.random() < self.epsilon:
@@ -66,7 +67,7 @@ class HAXSSAgent:
                 esc_idx = torch.argmax(self.q_esc(state)).item()
 
         esc_rule = self.escape_agent.rules[esc_idx]
-        base_payload = self.escape_agent.act(esc_rule)
+        base_payload = self.escape_agent.act(esc_rule, context_type=context_type)
 
         # Sanitization layer action
         if random.random() < self.epsilon:
@@ -88,18 +89,18 @@ class HAXSSAgent:
     def update(self, payload, result, context):
         """Update Q-networks based on feedback (Deep Q-Learning update)."""
         reward = self.reward_system.calculate_reward(result)
-        reward_tensor = torch.FloatTensor([reward]).to(self.device)
+        reward_tensor = torch.FloatTensor([reward]).to(self.device).unsqueeze(0) # Size [1]
 
         # Simplified DQN update for demo
         # Update Escape Policy
-        q_val_esc = self.q_esc(self.last_state)[self.last_esc_idx]
+        q_val_esc = self.q_esc(self.last_state)[self.last_esc_idx].unsqueeze(0) # Size [1]
         loss_esc = nn.MSELoss()(q_val_esc, reward_tensor)
         self.optimizer_esc.zero_grad()
         loss_esc.backward()
         self.optimizer_esc.step()
 
         # Update Sanitization Policy
-        q_val_san = self.q_san(self.last_state)[self.last_san_idx]
+        q_val_san = self.q_san(self.last_state)[self.last_san_idx].unsqueeze(0) # Size [1]
         loss_san = nn.MSELoss()(q_val_san, reward_tensor)
         self.optimizer_san.zero_grad()
         loss_san.backward()
