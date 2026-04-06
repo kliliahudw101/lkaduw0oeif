@@ -1,7 +1,13 @@
 import pytest
-from xsstriker.core.distilroberta_xss.classifier import XSSClassifier
-from xsstriker.core.rl_agent.agents import EscapeAgent, SanitizationAgent
-from xsstriker.core.xsstrike_integration.crawler import Crawl4AICrawler
+import sys
+import os
+
+# Adjust sys.path to find the xsstriker module
+sys.path.append(os.path.join(os.path.dirname(__file__), '../xsstriker'))
+
+from core.ai.classifier import XSSClassifier
+from core.rl.agents import EscapeAgent, SanitizationAgent
+from core.engines.crawler import Crawl4AICrawler
 
 def test_classifier_initialization():
     classifier = XSSClassifier()

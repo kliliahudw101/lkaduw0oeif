@@ -1,4 +1,8 @@
 import time
+from rich.console import Console
+from rich.panel import Panel
+
+console = Console()
 
 class ProgressTracker:
     """Layer 4: Tracks progress and performance metrics during target training."""
@@ -40,10 +44,13 @@ class ProgressTracker:
         return self.requests_count / elapsed
 
     def display_stats(self):
-        """Display live statistics (rich format placeholder)."""
-        print(f"[*] Progress - Requests: {self.requests_count}, "
-              f"Success Rate: {self.success_rate():.2f}%, "
-              f"Requests/sec: {self.requests_per_second():.2f}")
+        """Display live statistics using rich format."""
+        stats = (
+            f"[bold blue]Total Requests:[/bold blue] {self.requests_count}\n"
+            f"[bold green]Success Rate:[/bold green] {self.success_rate():.2f}%\n"
+            f"[bold yellow]Requests/sec:[/bold yellow] {self.requests_per_second():.2f}"
+        )
+        console.print(Panel(stats, title="[bold white]Final Statistics[/bold white]", expand=False))
 
 if __name__ == "__main__":
     tracker = ProgressTracker()

@@ -3,60 +3,79 @@ import sys
 import os
 import asyncio
 from rich.console import Console
-from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn
 
 # Ensure project structure is correctly imported
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# Core Components (XStriker Modern Architecture)
-from core.distilroberta_xss.classifier import XSSClassifier
-from core.xsstrike_integration.crawler import Crawl4AICrawler
-from core.xsstrike_integration.dom_scanner import DOMScanner
-from core.xsstrike_integration.stored_detector import StoredXSSDetector
-from core.rl_agent.haxss_agent import HAXSSAgent
-from core.cve_integration import XSSCVEWatcher
-from training.progress_tracker import ProgressTracker
-from reports.report_generator import ReportGenerator
+# Core Systems
+from core.engines.nexus_core import NexusCore
+from core.engines.cve_watcher import XSSCVEWatcher
+from core.ai.classifier import XSSClassifier
+from utils.logger import log_error, log_info
 
 console = Console()
 
 def print_banner():
-    """Prints the XStriker (Modern Python 3) banner."""
-    console.print("[bold red]" + "="*50 + "[/bold red]")
-    console.print("[bold white]   XStriker - Modern AI-Powered XSS Tool [/bold white]")
-    console.print("[bold blue]   v2.0 (Python 3.8+) - DistilRoBERTa + HAXSS [/bold blue]")
-    console.print("[bold red]" + "="*50 + "[/bold red]")
+    """Prints the XSStriker System of Systems banner."""
+    banner = """
+[bold red]
+┏━┓┏━┓┏━━┓┏━━━┓┏━━━━┓┳━┓┳ ┳┏━┓┳━┓
+ ┃  ┃  ┃  ┃┃   ┃   ┃  ┃ ┃┃ ┃┃ ┃┃ ┃
+ ┗━┓┗━┓┗━━┓┗━━━┓   ┃  ┣━┛┃ ┃┣━┛┣━┛
+   ┃  ┃   ┃    ┃   ┃  ┃ ┓┃ ┃┃  ┃ ┓
+┗━┛┗━┛┗━━┛┗━━━┛   ┻  ┻ ┗┗━┛┻  ┻ ┗
+[/bold red]
+[bold white]   The Most Advanced AI-Powered Multi-System Suite (NexusCore)[/bold white]
+[bold blue]   v2.5 (Python 3.8+) - Intelligence. Speed. Adaptation. Verification.[/bold blue]
+[bold red]   "System 1: SiteOracle | System 2: VelocityFuzz | System 3: AuraEngine"[/bold red]
+"""
+    console.print(banner)
 
 async def main():
-    parser = argparse.ArgumentParser(description="XStriker - Advanced and Modern AI-Powered XSS Tool")
-    parser.add_argument("--url", help="Target URL to scan", required=False)
-    parser.add_argument("--crawl", action="store_true", help="Crawl site for links and input vectors")
-    parser.add_argument("--train", help="Train model from scratch using custom payload file")
-    parser.add_argument("--epochs", type=int, default=50, help="Number of training epochs (Default: 50)")
-    parser.add_argument("--ai-mode", choices=["aggressive", "stealth", "balanced"], default="balanced", help="AI Mode")
-    parser.add_argument("--update-cves", action="store_true", help="Fetch and update AI with latest XSS CVEs")
-    parser.add_argument("--auto-exploit", action="store_true", help="Automatically download and test PoCs from CVEs")
-    parser.add_argument("--deep-scan", action="store_true", help="Deep scan (Reflected, Stored, DOM)")
-    parser.add_argument("--report", choices=["json", "html"], default="json", help="Report format")
+    parser = argparse.ArgumentParser(description="XSStriker NexusCore - Multi-System AI-Powered Discovery Tool")
+
+    group_scan = parser.add_argument_group('NexusCore Scanning Options')
+    group_scan.add_argument("--url", "-u", help="Target URL to scan")
+    group_scan.add_argument("--crawl", "-c", action="store_true", help="System 1: SiteOracle - Map Site")
+    group_scan.add_argument("--deep-scan", "-d", action="store_true", help="System 1: SiteOracle - Deep Scan")
+    group_scan.add_argument("--hidden-params", action="store_true", help="System 1: SiteOracle - Discover Hidden Parameters")
+
+    group_ai = parser.add_argument_group('AuraEngine & ML')
+    group_ai.add_argument("--train", help="Train AI from scratch using custom payload file")
+    group_ai.add_argument("--epochs", type=int, default=50, help="Number of training epochs (Default: 50)")
+    group_ai.add_argument("--update-cves", action="store_true", help="Fetch and update AI with latest XSS CVEs")
+
+    group_output = parser.add_argument_group('Output & Reporting')
+    group_output.add_argument("--report", choices=["json", "html"], default="json", help="Report format")
+    group_output.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
+
+    if len(sys.argv) == 1:
+        print_banner()
+        parser.print_help()
+        sys.exit(0)
+
+    if "-h" in sys.argv or "--help" in sys.argv:
+        print_banner()
+        parser.print_help()
+        sys.exit(0)
 
     args = parser.parse_args()
     print_banner()
 
-    # Layer 1: AI Detection Engine
-    classifier = XSSClassifier()
-
     if args.update_cves:
-        console.print("[*] Updating AI with latest XSS CVEs...")
-        watcher = XSSCVEWatcher()
-        cve_data = await watcher.fetch_latest()
-        watcher.train_on_cve(classifier, cve_data)
+        with console.status("[bold green]Updating AI with latest XSS CVEs..."):
+            watcher = XSSCVEWatcher()
+            cve_data = await watcher.fetch_latest()
+            classifier = XSSClassifier()
+            watcher.train_on_cve(classifier, cve_data)
+        console.print("[bold green][+] CVE Update Complete![/bold green]")
         console.print(watcher.generate_daily_report())
         if not args.url:
             return
 
     if args.train:
         console.print(f"[*] Training from scratch on file: {args.train} for {args.epochs} epochs")
-        # Example loading logic from text file
+        classifier = XSSClassifier()
         with open(args.train, "r") as f:
             payloads = f.read().splitlines()
         labels = [1] * len(payloads) # Assumed XSS dataset
@@ -65,61 +84,24 @@ async def main():
         return
 
     if not args.url:
-        parser.print_help()
-        return
+        console.print("[bold red][!] No target URL specified. Use -u/--url.[/bold red]")
+        sys.exit(1)
 
-    console.print(f"[bold blue][*] Starting aggressive scan on: {args.url}[/bold blue]")
-
-    # Initialization of layers
-    crawler = Crawl4AICrawler(args.url)
-    dom_scanner = DOMScanner()
-    stored_detector = StoredXSSDetector(args.url)
-    haxss = HAXSSAgent()
-    tracker = ProgressTracker()
-    results = []
-
-    # Step 1: Site Mapping and Crawling
-    vectors = await crawler.crawl()
-    if args.deep_scan:
-        await stored_detector.build_site_map()
-
-    # Step 2: Main Orchestration Loop
-    for vector in vectors:
-        console.print(f"[bold green][*] Fuzzing target: {vector['url']} ({vector['type']})[/bold green]")
-
-        # RL loop with HAXSS
-        for i in range(10):  # More attempts per parameter
-            # Generate payload using RL agents (7 escape, 32 mutation)
-            payload = haxss.generate_payload({"type": vector["type"]})
-
-            # AI Check
-            prediction = classifier.predict(payload)
-            if prediction["label"] == "XSS":
-                console.print(f"[*] AI confidence: {prediction['confidence']:.4f}")
-
-            # Simulated trigger check
-            xss_triggered = False
-            if args.deep_scan:
-                 # Check DOM-based XSS with Playwright
-                 xss_triggered = await dom_scanner.scan(vector["url"], vector["params"][0]["name"], payload)
-
-            status = "success" if xss_triggered else "failure"
-            tracker.update(status)
-            haxss.update(payload, status, {"type": vector["type"]})
-
-            if xss_triggered:
-                results.append({"url": vector["url"], "payload": payload, "type": "DOM/Reflected", "severity": "High"})
-                break
-
-    # Step 3: Reporting
-    rg = ReportGenerator(results, {"accuracy": 0.9966})
-    if args.report == "json":
-        rg.generate_json()
-    else:
-        rg.generate_html()
-
-    console.print("[bold green][+] XStriker scan complete! Report saved to reports/ directory.[/bold green]")
-    tracker.display_stats()
+    # Launch NexusCore Execution Flow
+    nexus = NexusCore(args.url)
+    await nexus.execute(crawl=args.crawl, deep_scan=args.deep_scan)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        console.print("\n[bold red][!] Scan interrupted by user.[/bold red]")
+        sys.exit(0)
+    except Exception as e:
+        log_error(f"Critical Error: {str(e)}")
+        console.print(f"\n[bold red][!] Critical Error: {e}[/bold red]")
+        console.print("[bold yellow][*] Check xsstriker/reports/xsstriker.log for technical details.[/bold yellow]")
+        if "--verbose" in sys.argv:
+            import traceback
+            traceback.print_exc()
+        sys.exit(1)
