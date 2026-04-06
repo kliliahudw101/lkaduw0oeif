@@ -17,8 +17,14 @@ class VelocityFuzz:
         """Worker task for fuzzing a single payload."""
         try:
             # Build URL or Data based on method
+            from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
+            parsed = urlparse(url)
+            query = parse_qs(parsed.query)
+            query[param] = [payload]
+            new_query = urlencode(query, doseq=True)
+            target_url = urlunparse(parsed._replace(query=new_query))
+
             if method.lower() == "get":
-                target_url = f"{url}{'&' if '?' in url else '?'}{param}={payload}"
                 response = await client.get(target_url, timeout=self.timeout)
             else:
                 response = await client.post(url, data={param: payload}, timeout=self.timeout)
